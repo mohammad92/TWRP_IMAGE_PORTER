@@ -68,12 +68,17 @@ for XML_FILE in ${XML}; do
 	echo "  ($count) ${XML_FILE}" >> "${PORT_UI}"/temp.list
 done
 
-clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"
+if [ "$count" -gt "1" ]; then
+	clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"
 
-echo " "
-cat "${PORT_UI}"/temp.list
-echo " "
-read "SELECTION?Please enter number to port: "
+	echo " "
+	cat "${PORT_UI}"/temp.list
+	echo " "
+	read "SELECTION?Please enter number to port [0 to cancel]: "
+elif [ "$count" -lt "2" ]; then
+	SELECTION=1
+fi
+
 
 if [ "$SELECTION" == "0" ]; then
 	rm -f "${PORT_UI}"/temp.list
