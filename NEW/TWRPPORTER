@@ -1,10 +1,9 @@
 #!/system/bin/sh
 
 # Written by Modding.MyMind/ModdingMyMind
-# XDA Senior Member ©2014
-# AF Senior Member/Guide ©2014
+# XDA Member ©2015
 
-VERSION=3.1
+VERSION=4.0
 
 GOTOTWRPIMAGE() {
 # Find the images to be ported.
@@ -50,13 +49,48 @@ done
 
 if [ $OPT == "1" ]; then
 	HEADSUP
-else
-	# Continue on with option 3
-	echo null > /dev/null 
 fi
 }
 
 GOTOTWRPUI() {
+
+# Some themes have multiple xml files.
+# Ask user which one to port.
+XML=$(find "${PORT_UI}" -type f -iname "*.xml")
+
+count=0
+
+for XML_FILE in ${XML}; do
+	count=$(($count+1))
+	XML_FILE=$(basename ${XML_FILE})
+	# Store filenames in array
+	file_array[$count]=${XML_FILE}
+	echo "  ($count) ${XML_FILE}" >> "${PORT_UI}"/temp.list
+done
+
+clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"
+
+echo " "
+cat "${PORT_UI}"/temp.list
+echo " "
+read "SELECTION?Please enter number to port: "
+
+if [ "$SELECTION" == "0" ]; then
+	rm -f "${PORT_UI}"/temp.list
+	HEADSUP
+elif [ "`echo $SELECTION | sed 's/[0-9]*//'`" == "" ]; then
+	file_chosen=${file_array[$SELECTION]}
+		if [ "$file_chosen" == "" ]; then
+			echo " "
+			echo "Selected file is missing?"
+			sleep 3
+			rm -f "${PORT_UI}"/temp.list
+			HEADSUP
+		fi
+fi
+
+rm -f "${PORT_UI}"/temp.list
+
 # Call this function during the while loop.
 CALCULATE_WIDTH() {
 		# Calculate old size for new size of each value.
@@ -79,199 +113,281 @@ CALCULATE_HEIGHT() {
 DONT_KNOW_JACK() {
 		if [ "$HUMAN_ANSWER" == "h" -o "$HUMAN_ANSWER" == "H" ] ; then
 			# Need this variable to calculate.
-			SIZEH=$(echo "$VALUE_CONFIRM")
+			SIZEH="$VALUE_CONFIRM"
 			CALCULATE_HEIGHT
 			echo " "
 			echo "Porting value='$VALUE_CONFIRM' to value='$FINALH'"
-			SED_CHANGE_WORD "$VALUE_CONFIRM" "$FINALH" "${PORT_UI}"/"${TEMPFILE}"
+			 # Change old value to new value based on line number.
+			 sed -i ''"$location"'s/'"$VALUE_CONFIRM"'/'"$FINALH"'/g' "${PORT_UI}"/"${file_chosen}"
 		else
 			# Need this variable to calculate.
-			SIZEW=$(echo "$VALUE_CONFIRM")
+			SIZEW="$VALUE_CONFIRM"
 			CALCULATE_WIDTH
 			echo " "
 			echo "Porting value='$VALUE_CONFIRM' to value='$FINALW'"
-			SED_CHANGE_WORD "$VALUE_CONFIRM" "$FINALW" "${PORT_UI}"/"${TEMPFILE}"
+			 # Change old value to new value based on line number.
+			 sed -i ''"$location"'s/'"$VALUE_CONFIRM"'/'"$FINALW"'/g' "${PORT_UI}"/"${file_chosen}"
 		fi
 }
-
-# Sets variables for changing requested text.
-# Call this function during the while loop.
-SED_CHANGE_WORD() {
-	# $1 - What we're changing
-	# $2 - To what we're changing
-	# $3 - File location for that
-	# $4 - Unique delimiter (optional)
-	if [[ -z "$4" ]]; then
-		sed -i 's/'"$1"'/'"$2"'/g' "$3"
-	else
-		sed -i 's'"$4""$1""$4""$2""$4"'g' "$3"
-	fi
-}
-
-# Need to write to two new files in order to modify the xml line by line properly.
-# $PORTFILE is located in the while loop.
-PORTFILE=$(echo UI_PORT.xml)
-TEMPFILE=$(echo CONVERTUI.xml)
-	if [ ! -f "${PORT_UI}"/"${TEMPFILE}" ]; then
-		touch "${PORT_UI}"/"${TEMPFILE}"
-	else
-		rm -f "${PORT_UI}"/"${TEMPFILE}"
-		touch "${PORT_UI}"/"${TEMPFILE}"
-	fi
 
 # Add my signature before we begin.
 # This is my work after all.
 # Only the original TWRP authors to the original TWRP themes have my permission to remove this signature.
 # If you are porting someone else's work using this script then this signature will remain intact.
-old=$(cat "${PORT_UI}"/ui.xml | egrep -o '<description>[0-9 A-Z a-z]+</description>' | egrep -o '[0-9 A-Z a-z]+<' | egrep -o '[0-9 A-Z a-z]+')
-sed -i "s/$old/$old Ported By Modding.MyMind/g" "${PORT_UI}"/ui.xml
+old=$(cat "${PORT_UI}"/"${file_chosen}" | egrep -o '<description>[0-9 A-Z a-z]+</description>' | egrep -o '[0-9 A-Z a-z]+<' | egrep -o '[0-9 A-Z a-z]+')
+sed -i "s/$old/$old Ported By Modding.MyMind/g" "${PORT_UI}"/"${file_chosen}"
 
-# Read the ui.xml file so we can find the proper values for a successful port.
-# Pipe in echo to insure the last line 'EOF' is read and the script doesn't quit on it.
-# Add 'IFS=' to insure each line read still contains it's tabs.
-clear; { cat "${PORT_UI}"/ui.xml; echo; } | while IFS= read -r line; do
-	if [ -f "${PORT_UI}"/"${PORTFILE}" ]; then
-		ECHO=$(cat "${PORT_UI}"/"${TEMPFILE}")
-		echo "$ECHO" >> "${PORT_UI}"/"${PORTFILE}"
-		# The script needs to be put on hold to insure it echoes accordingly and does not overlook any lines.
-		wait </dev/tty
-	else
-		touch "${PORT_UI}"/"${PORTFILE}"
-	fi
-echo "$line" > "${PORT_UI}"/"${TEMPFILE}"
-# The script needs to be put on hold to insure it echoes accordingly and does not overlook any lines.
-wait </dev/tty
 # Search for x values.
 XX() {
-	X=$(echo "$line" | egrep -o ' x="[0-9]+" ' | egrep -o '[0-9]+')
-	XCHECK=$(echo "$line" | egrep -o ' x="[0-9]+" ')
-		if [ -z "$XCHECK" -o "$X" == "0" ]; then
-			# Dump empty value.
-			echo null > /dev/null
-			# Call the YY function.
-			YY
-		else
-			# Save the value in a variable.
-			X_CONFIRM=$(echo "$X")
-			# Need this variable to calculate.
-			SIZEW=$(echo "$X_CONFIRM")
-			CALCULATE_WIDTH
-			echo "Porting x='$X_CONFIRM' to x='$FINALW'"
-			SED_CHANGE_WORD "$X_CONFIRM" "$FINALW" "${PORT_UI}"/"${TEMPFILE}"
-			# Call the YY function.
-			YY
-		fi
+
+####################
+####################
+
+# Get all x values and line numbers.
+egrep -on ' x="[0-9]+" ' "${PORT_UI}"/"${file_chosen}" > "${PORT_UI}"/x.txt
+
+# Begin while loop
+clear; while IFS= read -r line; do
+
+location=$(echo "$line" | egrep -o '[0-9]+:' | egrep -o '[0-9]+')
+
+X=$(echo "$line" | egrep -o ' x="[0-9]+" ' | egrep -o '[0-9]+')
+
+# If value is not 0 or null then proceed.
+if [ -n "$X" -a "$X" -gt 0 ]; then
+	# Need this variable to calculate.
+	SIZEW="$X"
+	# Calculate for new value.
+	CALCULATE_WIDTH
+	# Let user know about the old and new value.
+	echo " "
+	echo "Porting x='$X' to x='$FINALW'"
+	# Change old value to new value based on line number.
+	sed -i ''"$location"'s/'"$X"'/'"$FINALW"'/g' "${PORT_UI}"/"${file_chosen}"
+fi
+
+done < "${PORT_UI}"/x.txt
+
+# Remove unneeded txt file after while loop is finished.
+rm -rf "${PORT_UI}"/x.txt
+
+####################
+####################
+
 }
+
 # Search for y values.
 YY() {
-	Y=$(echo "$line" | egrep -o ' y="[0-9]+" ' | egrep -o '[0-9]+')
-	YCHECK=$(echo "$line" | egrep -o ' y="[0-9]+" ')
-		if [ -z "$YCHECK" -o "$Y" == "0" ]; then
-			# Dump empty value.
-			echo null > /dev/null
-			# Call the WWIDTH function.
-			WWIDTH
-		else
-			# Save the value in a variable.
-			Y_CONFIRM=$(echo "$Y")
-			# Need this variable to calculate.
-			SIZEH=$(echo "$Y_CONFIRM")
-			CALCULATE_HEIGHT
-			echo "Porting y='$Y_CONFIRM' to y='$FINALH'"
-			SED_CHANGE_WORD "$Y_CONFIRM" "$FINALH" "${PORT_UI}"/"${TEMPFILE}"
-			# Call the WWIDTH function.
-			WWIDTH
-		fi
+
+####################
+####################
+
+# Get all y values and line numbers.
+egrep -on ' y="[0-9]+" ' "${PORT_UI}"/"${file_chosen}" > "${PORT_UI}"/y.txt
+
+# Begin while loop
+while IFS= read -r line; do
+
+location=$(echo "$line" | egrep -o '[0-9]+:' | egrep -o '[0-9]+')
+
+Y=$(echo "$line" | egrep -o ' y="[0-9]+" ' | egrep -o '[0-9]+')
+
+# If value is not 0 or null then proceed.
+if [ -n "$Y" -a "$Y" -gt 0 ]; then
+	# Need this variable to calculate.
+	SIZEH="$Y"
+	# Calculate for new value.
+	CALCULATE_HEIGHT
+	# Let user know about the old and new value.
+	echo " "
+	echo "Porting y='$Y' to y='$FINALH'"
+	# Change old value to new value based on line number.
+	sed -i ''"$location"'s/'"$Y"'/'"$FINALH"'/g' "${PORT_UI}"/"${file_chosen}"
+fi
+
+done < "${PORT_UI}"/y.txt
+
+# Remove unneeded txt file after while loop is finished.
+rm -rf "${PORT_UI}"/y.txt
+
+####################
+####################
+
 }
+
 # Search for width 'width=' values.
 WWIDTH() {
-	WIDTH=$(echo "$line" | egrep -o ' width="[0-9]+" ' | egrep -o '[0-9]+')
-	WIDTHCHECK=$(echo "$line" | egrep -o ' width="[0-9]+" ')
-		if [ -z "$WIDTHCHECK" -o "$WIDTH" == "0" ]; then
-			# Dump empty values.
-	 		echo null > /dev/null
-			# Call the HHEIGHT function.
-			HHEIGHT
-		else
-			# Save the value in a variable.
-			WIDTH_CONFIRM=$(echo "$WIDTH")
-			# Need this variable to calculate.
-			SIZEW=$(echo "$WIDTH_CONFIRM")
-			CALCULATE_WIDTH
-			echo "Porting width='$WIDTH_CONFIRM' to width='$FINALW'"
-			SED_CHANGE_WORD "$WIDTH_CONFIRM" "$FINALW" "${PORT_UI}"/"${TEMPFILE}"
-			# Call the HHEIGHT function.
-			HHEIGHT
-		fi
+
+####################
+####################
+
+# Get all width values and line numbers.
+egrep -on ' width="[0-9]+" ' "${PORT_UI}"/"${file_chosen}" > "${PORT_UI}"/width.txt
+
+# Begin while loop
+while IFS= read -r line; do
+
+location=$(echo "$line" | egrep -o '[0-9]+:' | egrep -o '[0-9]+')
+
+WIDTH=$(echo "$line" | egrep -o ' width="[0-9]+" ' | egrep -o '[0-9]+')
+
+# If value is not 0 or null then proceed.
+if [ -n "$WIDTH" -a "$WIDTH" -gt 0 ]; then
+	# Need this variable to calculate.
+	SIZEW="$WIDTH"
+	# Calculate for new value.
+	CALCULATE_WIDTH
+	# Let user know about the old and new value.
+	echo " "
+	echo "Porting width='$WIDTH' to width='$FINALW'"
+	# Change old value to new value based on line number.
+	sed -i ''"$location"'s/'"$WIDTH"'/'"$FINALW"'/g' "${PORT_UI}"/"${file_chosen}"
+fi
+
+done < "${PORT_UI}"/width.txt
+
+# Remove unneeded txt file after while loop is finished.
+rm -rf "${PORT_UI}"/width.txt
+
+####################
+####################
+
 }
+
 # Search for height 'height=' values.
 HHEIGHT() {
-	HEIGHT=$(echo "$line" | egrep -o ' height="[0-9]+" ' | egrep -o '[0-9]+')
-	HEIGHTCHECK=$(echo "$line" | egrep -o ' height="[0-9]+" ')
-		if [ -z "$HEIGHTCHECK" -o "$HEIGHT" == "0" ]; then
-			# Dump empty values.
-			echo null > /dev/null
-			# Call the HH function.
-			HH
-		else
-			# Save the value in a variable.
-			HEIGHT_CONFIRM=$(echo "$HEIGHT")
-			# Need this variable to calculate.
-			SIZEH=$(echo "$HEIGHT_CONFIRM")
-			CALCULATE_HEIGHT
-			echo "Porting height='$HEIGHT_CONFIRM' to height='$FINALH'"
-			SED_CHANGE_WORD "$HEIGHT_CONFIRM" "$FINALH" "${PORT_UI}"/"${TEMPFILE}"
-			# Call the HH function.
-			HH
-		fi
+
+####################
+####################
+
+# Get all height values and line numbers.
+egrep -on ' height="[0-9]+" ' "${PORT_UI}"/"${file_chosen}" > "${PORT_UI}"/height.txt
+
+# Begin while loop
+while IFS= read -r line; do
+
+location=$(echo "$line" | egrep -o '[0-9]+:' | egrep -o '[0-9]+')
+
+HEIGHT=$(echo "$line" | egrep -o ' height="[0-9]+" ' | egrep -o '[0-9]+')
+
+# If value is not 0 or null then proceed.
+if [ -n "$HEIGHT" -a "$HEIGHT" -gt 0 ]; then
+	# Need this variable to calculate.
+	SIZEH="$HEIGHT"
+	# Calculate for new value.
+	CALCULATE_HEIGHT
+	# Let user know about the old and new value.
+	echo " "
+	echo "Porting height='$HEIGHT' to height='$FINALH'"
+	# Change old value to new value based on line number.
+	sed -i ''"$location"'s/'"$HEIGHT"'/'"$FINALH"'/g' "${PORT_UI}"/"${file_chosen}"
+fi
+
+done < "${PORT_UI}"/height.txt
+
+# Remove unneeded txt file after while loop is finished.
+rm -rf "${PORT_UI}"/height.txt
+
+####################
+####################
+
 }
+
 # Search for height 'h=' values.
 HH() {
-	H=$(echo "$line" | egrep -o ' h="[0-9]+" ' | egrep -o '[0-9]+')
-	HCHECK=$(echo "$line" | egrep -o ' h="[0-9]+" ')
-		if [ -z "$HCHECK" -o "$H" == "0" ]; then
-			# Dump empty values.
-			echo null > /dev/null
-			# Call the WW function.
-			WW
-		else
-			# Save the value in a variable.
-			H_CONFIRM=$(echo "$H")
-			# Need this variable to calculate.
-			SIZEH=$(echo "$H_CONFIRM")
-			CALCULATE_HEIGHT
-			echo "Porting h='$H_CONFIRM' to h='$FINALH'"
-			SED_CHANGE_WORD "$H_CONFIRM" "$FINALH" "${PORT_UI}"/"${TEMPFILE}"
-			# Call the WW function.
-			WW
-		fi
+
+####################
+####################
+
+# Get all h values and line numbers.
+egrep -on ' h="[0-9]+" ' "${PORT_UI}"/"${file_chosen}" > "${PORT_UI}"/h.txt
+
+# Begin while loop
+while IFS= read -r line; do
+
+location=$(echo "$line" | egrep -o '[0-9]+:' | egrep -o '[0-9]+')
+
+H=$(echo "$line" | egrep -o ' h="[0-9]+" ' | egrep -o '[0-9]+')
+
+# If value is not 0 or null then proceed.
+if [ -n "$H" -a "H" -gt 0 ]; then
+	# Need this variable to calculate.
+	SIZEH="$H"
+	# Calculate for new value.
+	CALCULATE_HEIGHT
+	# Let user know about the old and new value.
+	echo " "
+	echo "Porting h='$H' to h='$FINALH'"
+	# Change old value to new value based on line number.
+	sed -i ''"$location"'s/'"$H"'/'"$FINALH"'/g' "${PORT_UI}"/"${file_chosen}"
+fi
+
+done < "${PORT_UI}"/h.txt
+
+# Remove unneeded txt file after while loop is finished.
+rm -rf "${PORT_UI}"/h.txt
+
+####################
+####################
+
 }
+
 # Search for width 'w=' values.
 WW() {
-	W=$(echo "$line" | egrep -o ' w="[0-9]+" ' | egrep -o '[0-9]+')
-	WCHECK=$(echo "$line" | egrep -o ' w="[0-9]+" ')
-		if [ -z "$WCHECK" -o "$W" == "0" ]; then
-			# Dump empty values.
-			echo null > /dev/null
-			# Call the VVALUE_OVERHAUL function.
-			VVALUE_OVERHAUL
-		else
-			# Save the value in a variable.
-			W_CONFIRM=$(echo "$W")
-			# Need this variable to calculate.
-			SIZEW=$(echo "$W_CONFIRM")
-			CALCULATE_WIDTH
-			echo "Porting w='$W_CONFIRM' to w='$FINALW'"
-			SED_CHANGE_WORD "$W_CONFIRM" "$FINALW" "${PORT_UI}"/"${TEMPFILE}"
-			# Call the VVALUE_OVERHAUL function.
-			VVALUE_OVERHAUL
-		fi
+
+####################
+####################
+
+# Get all w values and line numbers.
+egrep -on ' w="[0-9]+" ' "${PORT_UI}"/"${file_chosen}" > "${PORT_UI}"/w.txt
+
+# Begin while loop
+while IFS= read -r line; do
+
+location=$(echo "$line" | egrep -o '[0-9]+:' | egrep -o '[0-9]+')
+
+W=$(echo "$line" | egrep -o ' w="[0-9]+" ' | egrep -o '[0-9]+')
+
+# If value is not 0 or null then proceed.
+if [ -n "$W" -a "$W" -gt 0 ]; then
+	# Need this variable to calculate.
+	SIZEW="$W"
+	# Calculate for new value.
+	CALCULATE_WIDTH
+	# Let user know about the old and new value.
+	echo " "
+	echo "Porting w='$W' to w='$FINALW'"
+	# Change old value to new value based on line number.
+	sed -i ''"$location"'s/'"$W"'/'"$FINALW"'/g' "${PORT_UI}"/"${file_chosen}"
+fi
+
+done < "${PORT_UI}"/w.txt
+
+# Remove unneeded txt file after while loop is finished.
+rm -rf "${PORT_UI}"/w.txt
+
+####################
+####################
+
 }
+
 # Search for 'value' values which can be recognized by a special character and handled automatically.
 # Set variables for easy identification.
 # Use if, elif, and else statement to process each outcome.
 # Set human answer then call the DONT_KNOW_JACK function
 VVALUE_OVERHAUL() {
+
+####################
+####################
+
+# Get all variable values and line numbers.
+grep -n "variable name=" "${PORT_UI}"/"${file_chosen}" > "${PORT_UI}"/variable.txt
+
+# Begin while loop
+while IFS= read -r line; do
+
+location=$(echo "$line" | egrep -o '[0-9]+:' | egrep -o '[0-9]+')
+
 	VARIABLE_NAME_X=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_x" ')
 	VARIABLE_NAME_X2=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_x_[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+" ')
 	VARIABLE_NAME_Y=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_y" ')
@@ -325,7 +441,17 @@ VVALUE_OVERHAUL() {
 			# Call on VVALUE function.
 			VVALUE
 		fi
+
+done < "${PORT_UI}"/variable.txt
+
+# Remove unneeded txt file after while loop is finished.
+rm -rf "${PORT_UI}"/variable.txt
+
+####################
+####################
+
 }
+
 # Search for 'value' values. These values are a special case and will require the user to decide.
 VVALUE() {
 	VALUE=$(echo "$line" | egrep -o ' value="[0-9]+" ' | egrep -o '[0-9]+')
@@ -335,7 +461,7 @@ VVALUE() {
 			echo null > /dev/null
 		else
 			# Save the value in a variable.
-			VALUE_CONFIRM=$(echo "$VALUE")
+			VALUE_CONFIRM="$VALUE"
 			echo " "
 			echo The value below must be determined by the human mind!
 			echo " "
@@ -347,6 +473,7 @@ VVALUE() {
 			YOUR_MIND
 		fi
 }
+
 YOUR_MIND() {
 	if [ "$HUMAN_ANSWER" == "w" -o "$HUMAN_ANSWER" == "h" -o "$HUMAN_ANSWER" == "W" -o "$HUMAN_ANSWER" == "H" ]; then
 		# Call the DONT_KNOW_JACK function.
@@ -360,19 +487,18 @@ YOUR_MIND() {
 	 	VVALUE
 	fi
 }
-# OUT OF ALL THE VALUES TO BE DETECTED WE WILL BEGIN ON CALLING THE XX FUNCTION!
+
+# Call functions for porting all applicable values.
 XX
-# The script needs to be put on hold to insure it echoes accordingly and does not overlook any lines.
-wait </dev/tty ;
-done
-# Remove temporary file after while loop has finished.
-rm -f "${PORT_UI}"/"${TEMPFILE}"
+YY
+HHEIGHT
+WWIDTH
+WW
+HH
+VVALUE_OVERHAUL
 
 if [ $OPT == "2" ]; then
 	HEADSUP
-else
-	# Continue with option 3
-	echo null > /dev/null
 fi
 }
 
@@ -504,7 +630,7 @@ if [ ! $CHECKGM ]; then
 	echo " "
 	echo "Please select your option:"
 	echo "1. Port TWRP Images"
-	echo "2. Port TWRP ui.xml"
+	echo "2. Port TWRP xml"
 	echo "3. Port Both"
 	echo "4. Install GraphicsMagick"
 	echo "Q/q - Exit Script"
@@ -540,7 +666,7 @@ else
 	echo " "
 	echo "Please select your option:"
 	echo "1. Port TWRP Images"
-	echo "2. Port TWRP ui.xml"
+	echo "2. Port TWRP xml"
 	echo "3. Port Both"
 	echo "4. Uninstall GraphicsMagick"
 	echo "Q/q - Exit Script"
