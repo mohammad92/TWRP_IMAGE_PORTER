@@ -3,7 +3,7 @@
 # Written by Modding.MyMind/ModdingMyMind
 # XDA Member ©2015
 
-VERSION=4.0
+VERSION=4.1
 
 GOTOTWRPIMAGE() {
 # Find the images to be ported.
@@ -83,14 +83,14 @@ fi
 if [ "$SELECTION" == "0" ]; then
 	rm -f "${PORT_UI}"/temp.list
 	HEADSUP
-elif [ "`echo $SELECTION | sed 's/[0-9]*//'`" == "" ]; then
+elif [ "`echo $SELECTION | sed 's/[0-9a-zA-Z]*//'`" == "" ]; then
 	file_chosen=${file_array[$SELECTION]}
 		if [ "$file_chosen" == "" ]; then
 			echo " "
-			echo "Selected file is missing?"
+			echo "Please make correct selection."
 			sleep 3
 			rm -f "${PORT_UI}"/temp.list
-			HEADSUP
+			GOTOTWRPUI
 		fi
 fi
 
@@ -531,6 +531,9 @@ BASE_DEVICE() {
 			read -n1 any_key
 			clear; BASE_DEVICE
 		fi
+		if [ $OPT == "5" ]; then
+			HEADSUP
+		fi
 }
 
 PORT_DEVICE() {
@@ -555,6 +558,9 @@ PORT_DEVICE() {
 			read -n1 any_key
 			clear; PORT_DEVICE
 		fi
+		if [ $OPT == "6" ]; then
+			HEADSUP
+		fi
 }
 
 THEME_DIRECTORY() {
@@ -574,6 +580,9 @@ THEME_DIRECTORY() {
 			echo "Press ANY key when ready..."
 			read -n1 any_key
 			clear; THEME_DIRECTORY
+		fi
+		if [ $OPT == "4" ]; then
+			HEADSUP
 		fi
 }
 
@@ -635,9 +644,12 @@ if [ ! $CHECKGM ]; then
 	echo " "
 	echo "Please select your option:"
 	echo "1. Port TWRP Images"
-	echo "2. Port TWRP xml"
+	echo "2. Port TWRP XML(s)"
 	echo "3. Port Both"
-	echo "4. Install GraphicsMagick"
+	echo "4. Change Theme Directory"
+	echo "5. Change Base Resolution"
+	echo "6. Change Port Resolution"
+	echo "7. Install GraphicsMagick"
 	echo "Q/q - Exit Script"
 	echo " "
 	read "OPT?Option: "
@@ -645,13 +657,19 @@ if [ ! $CHECKGM ]; then
 		if [[ ! $OPT == "2" ]]; then
 			if [[ ! $OPT == "3" ]]; then
 				if [[ ! $OPT == "4" ]]; then
-					if [[ ! $OPT == q ]]; then
-						if [[ ! $OPT == Q ]]; then
-							clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"
-							echo " "
-							echo "Invalid Input: Please try again!"
-							sleep 3
-							HEADSUP
+					if [[ ! $OPT == "5" ]]; then
+						if [[ ! $OPT == "6" ]]; then
+							if [[ ! $OPT == "7" ]]; then
+								if [[ ! $OPT == q ]]; then
+									if [[ ! $OPT == Q ]]; then
+										clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"
+										echo " "
+										echo "Invalid Input: Please try again!"
+										sleep 3
+										HEADSUP
+									fi
+								fi
+							fi
 						fi
 					fi
 				fi
@@ -662,7 +680,10 @@ if [ ! $CHECKGM ]; then
 		1) GOTOTWRPIMAGE ;;
 		2) GOTOTWRPUI ;;
 		3) GOTOTWRPIMAGE && GOTOTWRPUI ;;
-		4) INSTALLGM ;;
+		4) THEME_DIRECTORY ;;
+		5) BASE_DEVICE ;;
+		6) PORT_DEVICE ;;
+		7) INSTALLGM ;;
 		Q) clear; echo "Goodbye"; read; clear; exit;;
 		q) clear; echo "Goodbye"; read; clear; exit;;
 	esac
@@ -671,9 +692,12 @@ else
 	echo " "
 	echo "Please select your option:"
 	echo "1. Port TWRP Images"
-	echo "2. Port TWRP xml"
+	echo "2. Port TWRP XML(s)"
 	echo "3. Port Both"
-	echo "4. Uninstall GraphicsMagick"
+	echo "4. Change Theme Directory"
+	echo "5. Change Base Resolution"
+	echo "6. Change Port Resolution"
+	echo "7. Uninstall GraphicsMagick"
 	echo "Q/q - Exit Script"
 	echo " "
 	read "OPT?Option: "
@@ -681,13 +705,19 @@ else
 		if [[ ! $OPT == "2" ]]; then
 			if [[ ! $OPT == "3" ]]; then
 				if [[ ! $OPT == "4" ]]; then
-					if [[ ! $OPT == q ]]; then
-						if [[ ! $OPT == Q ]]; then
-							clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"
-							echo " "
-							echo "Invalid Input: Please try again!"
-							sleep 3
-							HEADSUP
+					if [[ ! $OPT == "5" ]]; then
+						if [[ ! $OPT == "6" ]]; then
+							if [[ ! $OPT == "7" ]]; then
+								if [[ ! $OPT == q ]]; then
+									if [[ ! $OPT == Q ]]; then
+										clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"
+										echo " "
+										echo "Invalid Input: Please try again!"
+										sleep 3
+										HEADSUP
+									fi
+								fi
+							fi
 						fi
 					fi
 				fi
@@ -698,7 +728,10 @@ else
 		1) GOTOTWRPIMAGE ;;
 		2) GOTOTWRPUI ;;
 		3) GOTOTWRPIMAGE && GOTOTWRPUI ;;
-		4) $SU busybox mount -o remount,rw -t auto /system; $SU rm -f "/system/bin/gm"; $SU busybox mount -o remount,ro -t auto /system; clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"; echo " "; echo "GraphicsMagick is uninstalled!"; sleep 3; HEADSUP ;;
+		4) THEME_DIRECTORY ;;
+		5) BASE_DEVICE ;;
+		6) PORT_DEVICE ;;
+		7) $SU busybox mount -o remount,rw -t auto /system; $SU rm -f "/system/bin/gm"; $SU busybox mount -o remount,ro -t auto /system; clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"; echo " "; echo "GraphicsMagick is uninstalled!"; sleep 3; HEADSUP ;;
 		Q) clear; echo "Goodbye"; read; clear; exit;;
 		q) clear; echo "Goodbye"; read; clear; exit;;
 	esac
