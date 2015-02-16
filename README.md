@@ -32,4 +32,8 @@ XDA Member ©2015
 
 - Enjoy!
 
-NOTE: Font sizes must be handled manually (user discretion). Keyboard Template must be handled manually such as "key01=" as a mere example (haven't added support yet) but it's width and height is.
+NOTE: 
+
+- Resizing TTF Fonts automatically is supported.
+- Non TTF Font sizes must be handled manually (user discretion). 
+- Keyboard Template keys must be handled manually such as "key01=" as a mere example (haven't added support yet) but it's width and height is.
