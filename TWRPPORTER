@@ -3,11 +3,14 @@
 # Written by Modding.MyMind/ModdingMyMind
 # XDA Member ©2015
 
-VERSION=4.1
+VERSION=4.2
 
 GOTOTWRPIMAGE() {
 # Find the images to be ported.
-clear; find "${P_IMAGES}" -type f -iname "*.png" -o -iname "*.jpg" | while read line; do
+if output=$(find "${P_IMAGES}" -type f -iname "*.png" -o -iname "*.jpg"); then
+	echo "${output}" >> "${P_IMAGES}"/image_dir.txt
+fi
+clear; while read line; do
 		# Remember the directory and filename to each image.
 		local IMAGEFILE="$(basename "${line}")"
 		local IMAGEFILEDIR="$(dirname "${line}")"
@@ -45,7 +48,11 @@ clear; find "${P_IMAGES}" -type f -iname "*.png" -o -iname "*.jpg" | while read 
 		 	 	# Convert image to new size.
 		 	 	gm convert "${IMAGEFILEDIR}"/"${IMAGEFILE}" -resize $FINALW'x'$FINALH'!' "${IMAGEFILEDIR}"/"${IMAGEFILE}"
 		 	fi;
-done
+done < "${P_IMAGES}"/image_dir.txt
+
+if [ -f "${P_IMAGES}"/image_dir.txt ]; then
+	rm -rf "${P_IMAGES}"/image_dir.txt
+fi
 
 if [ $OPT == "1" ]; then
 	HEADSUP
@@ -376,121 +383,120 @@ rm -rf "${PORT_UI}"/w.txt
 
 }
 
-# Search for 'value' values which can be recognized by a special character and handled automatically.
+# Search for 'value' values which can be recognized by a special character or string.
+# These strings are based on the TWRP source.
 # Set variables for easy identification.
-# Use if, elif, and else statement to process each outcome.
+# Suppress duplicates
 # Set human answer then call the DONT_KNOW_JACK function
 VVALUE_OVERHAUL() {
 
 ####################
 ####################
 
-# Get all variable values and line numbers.
-grep -n "variable name=" "${PORT_UI}"/"${file_chosen}" > "${PORT_UI}"/variable.txt
+# Get all standard variables and line numbers.
+if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_x"); then
+	echo "$output" >> "${PORT_UI}"/w.txt
+fi
+
+if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_y"); then
+	echo "$output" >> "${PORT_UI}"/h.txt
+fi
+
+if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_width"); then
+	echo "$output" >> "${PORT_UI}"/w.txt
+fi
+
+if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_height"); then
+	echo "$output" >> "${PORT_UI}"/h.txt
+fi
+
+if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_w"); then
+	echo "$output" >> "${PORT_UI}"/w.txt
+fi
+
+if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_h"); then
+	echo "$output" >> "${PORT_UI}"/h.txt
+fi
+
+if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_sliderw"); then
+	echo "$output" >> "${PORT_UI}"/w.txt
+fi
+
+if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_sliderh"); then
+	echo "$output" >> "${PORT_UI}"/h.txt
+fi
+
+if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_padding"); then
+	echo "$output" >> "${PORT_UI}"/h.txt
+fi
+
+if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_rectw"); then
+	echo "$output" >> "${PORT_UI}"/w.txt
+fi
+
+if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_recth"); then
+	echo "$output" >> "${PORT_UI}"/h.txt
+fi
+
+if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_separatorheight"); then
+	echo "$output" >> "${PORT_UI}"/h.txt
+fi
+
+if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_linew"); then
+	echo "$output" >> "${PORT_UI}"/w.txt
+fi
+
+if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_lineh"); then
+	echo "$output" >> "${PORT_UI}"/h.txt
+fi
+
+if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "row"); then
+	echo "$output" >> "${PORT_UI}"/h.txt
+fi
+
+# Sort out and suppress all duplicates
+if [ -f "${PORT_UI}"/h.txt ]; then
+	sort -u "${PORT_UI}"/h.txt > "${PORT_UI}"/height.txt
+	rm -rf "${PORT_UI}"/h.txt
+fi
+if [ -f "${PORT_UI}"/w.txt ]; then
+	sort -u "${PORT_UI}"/w.txt > "${PORT_UI}"/width.txt
+	rm -rf "${PORT_UI}"/w.txt
+fi
 
 # Begin while loop
 while IFS= read -r line; do
-
-location=$(echo "$line" | egrep -o '[0-9]+:' | egrep -o '[0-9]+')
-
-	VARIABLE_NAME_X=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_x" ')
-	VARIABLE_NAME_X2=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_x_[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+" ')
-	VARIABLE_NAME_Y=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_y" ')
-	VARIABLE_NAME_Y2=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_y_[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+" ')
-	VARIABLE_NAME_W=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_w" ')
-	VARIABLE_NAME_W2=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_w_[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+" ')
-	VARIABLE_NAME_H=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_h" ')
-	VARIABLE_NAME_H2=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_h_[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+" ')
-	VARIABLE_NAME_WIDTH=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_width" ')
-	VARIABLE_NAME_WIDTH2=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_width_[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+" ')
-	VARIABLE_NAME_HEIGHT=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_height" ')
-	VARIABLE_NAME_HEIGHT2=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_height_[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+" ')
+	location=$(echo "$line" | egrep -o '[0-9]+:' | egrep -o '[0-9]+')
 	VALUE_CONFIRM=$(echo "$line" | egrep -o ' value="[0-9]+" ' | egrep -o '[0-9]+')
-		if [ -n "$VARIABLE_NAME_X" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
-			HUMAN_ANSWER=w
-			DONT_KNOW_JACK
-		elif [ -n "$VARIABLE_NAME_X2" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
-			HUMAN_ANSWER=w
-			DONT_KNOW_JACK
-		elif [ -n "$VARIABLE_NAME_Y" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
+		if [ -n "$location" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
 			HUMAN_ANSWER=h
 			DONT_KNOW_JACK
-		elif [ -n "$VARIABLE_NAME_Y2" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
-			HUMAN_ANSWER=h
-			DONT_KNOW_JACK
-		elif [ -n "$VARIABLE_NAME_W" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
-			HUMAN_ANSWER=w
-			DONT_KNOW_JACK
-		elif [ -n "$VARIABLE_NAME_W2" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
-			HUMAN_ANSWER=w
-			DONT_KNOW_JACK
-		elif [ -n "$VARIABLE_NAME_H" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
-			HUMAN_ANSWER=h
-			DONT_KNOW_JACK
-		elif [ -n "$VARIABLE_NAME_H2" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
-			HUMAN_ANSWER=h
-			DONT_KNOW_JACK
-		elif [ -n "$VARIABLE_NAME_WIDTH" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
-			HUMAN_ANSWER=w
-			DONT_KNOW_JACK
-		elif [ -n "$VARIABLE_NAME_WIDTH2" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
-			HUMAN_ANSWER=w
-			DONT_KNOW_JACK
-		elif [ -n "$VARIABLE_NAME_HEIGHT" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
-			HUMAN_ANSWER=h
-			DONT_KNOW_JACK
-		elif [ -n "$VARIABLE_NAME_HEIGHT2" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
-			HUMAN_ANSWER=h
-			DONT_KNOW_JACK
-		else
-			# Call on VVALUE function.
-			VVALUE
 		fi
-
-done < "${PORT_UI}"/variable.txt
+done < "${PORT_UI}"/height.txt;
 
 # Remove unneeded txt file after while loop is finished.
-rm -rf "${PORT_UI}"/variable.txt
+if [ -f "${PORT_UI}"/height.txt ]; then
+	rm -rf "${PORT_UI}"/height.txt
+fi
 
-####################
-####################
-
-}
-
-# Search for 'value' values. These values are a special case and will require the user to decide.
-VVALUE() {
-	VALUE=$(echo "$line" | egrep -o ' value="[0-9]+" ' | egrep -o '[0-9]+')
-	VALUECHECK=$(echo "$line" | egrep -o ' value="[0-9]+" ')
-		if [ -z "$VALUECHECK" -o "$VALUE" == "0" -o "$VALUE" == "1" ]; then
-			# Dump empty values.
-			echo null > /dev/null
-		else
-			# Save the value in a variable.
-			VALUE_CONFIRM="$VALUE"
-			echo " "
-			echo The value below must be determined by the human mind!
-			echo " "
-			# Don't quote $line for easy reading.
-			echo $line
-			echo "Please type and enter, W for width or H for height:"
-			read HUMAN_ANSWER </dev/tty
-			# Call the YOUR_MIND function.
-			YOUR_MIND
+# Begin while loop
+while IFS= read -r line; do
+	location=$(echo "$line" | egrep -o '[0-9]+:' | egrep -o '[0-9]+')
+	VALUE_CONFIRM=$(echo "$line" | egrep -o ' value="[0-9]+" ' | egrep -o '[0-9]+')
+		if [ -n "$location" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
+			HUMAN_ANSWER=w
+			DONT_KNOW_JACK
 		fi
-}
+done < "${PORT_UI}"/width.txt;
 
-YOUR_MIND() {
-	if [ "$HUMAN_ANSWER" == "w" -o "$HUMAN_ANSWER" == "h" -o "$HUMAN_ANSWER" == "W" -o "$HUMAN_ANSWER" == "H" ]; then
-		# Call the DONT_KNOW_JACK function.
-	 	DONT_KNOW_JACK
-	else
-	 	echo " "
-	 	echo "Please enter either W for Width or H for Height!"
-	 	echo "Press ANY key to try again!"
-	 	read -n 1 any_key </dev/tty
-		# Call the VVALUE function.
-	 	VVALUE
-	fi
+# Remove unneeded txt file after while loop is finished.
+if [ -f "${PORT_UI}"/width.txt ]; then
+	rm -rf "${PORT_UI}"/width.txt
+fi
+
+####################
+####################
+
 }
 
 # Call functions for porting all applicable values.

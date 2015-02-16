@@ -14,7 +14,6 @@ XDA Member ©2015
 
 - To use this Theme Porter, clone or download.
 
-NEW:
 - Place TWRPPORTER to "/system/bin" on your Android device.
 
 - chmod to 755 (rwxr-xr-x)
