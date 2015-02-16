@@ -3,7 +3,7 @@
 # Written by Modding.MyMind/ModdingMyMind
 # XDA Member ©2015
 
-VERSION=4.3
+VERSION=4.3.1
 
 GOTOTWRPIMAGE() {
 # Find the images to be ported.
@@ -510,7 +510,10 @@ VVALUE_OVERHAUL
 
 if [ $OPT == "2" ]; then
 	HEADSUP
+elif [ $OPT == "3" ]; then
+	HEADSUP
 fi
+
 }
 
 # Resize fonts if font is ttf only
