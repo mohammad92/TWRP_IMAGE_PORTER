@@ -3,7 +3,7 @@
 # Written by Modding.MyMind/ModdingMyMind
 # XDA Member ©2015
 
-VERSION=4.2
+VERSION=4.3
 
 GOTOTWRPIMAGE() {
 # Find the images to be ported.
@@ -394,63 +394,63 @@ VVALUE_OVERHAUL() {
 ####################
 
 # Get all standard variables and line numbers.
-if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_x"); then
+if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_x"); then
 	echo "$output" >> "${PORT_UI}"/w.txt
 fi
 
-if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_y"); then
+if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_y"); then
 	echo "$output" >> "${PORT_UI}"/h.txt
 fi
 
-if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_width"); then
+if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_width"); then
 	echo "$output" >> "${PORT_UI}"/w.txt
 fi
 
-if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_height"); then
+if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_height"); then
 	echo "$output" >> "${PORT_UI}"/h.txt
 fi
 
-if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_w"); then
+if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_w"); then
 	echo "$output" >> "${PORT_UI}"/w.txt
 fi
 
-if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_h"); then
+if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_h"); then
 	echo "$output" >> "${PORT_UI}"/h.txt
 fi
 
-if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_sliderw"); then
+if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_sliderw"); then
 	echo "$output" >> "${PORT_UI}"/w.txt
 fi
 
-if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_sliderh"); then
+if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_sliderh"); then
 	echo "$output" >> "${PORT_UI}"/h.txt
 fi
 
-if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_padding"); then
+if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_padding"); then
 	echo "$output" >> "${PORT_UI}"/h.txt
 fi
 
-if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_rectw"); then
+if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_rectw"); then
 	echo "$output" >> "${PORT_UI}"/w.txt
 fi
 
-if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_recth"); then
+if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_recth"); then
 	echo "$output" >> "${PORT_UI}"/h.txt
 fi
 
-if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_separatorheight"); then
+if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_separatorheight"); then
 	echo "$output" >> "${PORT_UI}"/h.txt
 fi
 
-if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_linew"); then
+if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_linew"); then
 	echo "$output" >> "${PORT_UI}"/w.txt
 fi
 
-if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "_lineh"); then
+if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_lineh"); then
 	echo "$output" >> "${PORT_UI}"/h.txt
 fi
 
-if output=$(egrep "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep -n "row"); then
+if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "row"); then
 	echo "$output" >> "${PORT_UI}"/h.txt
 fi
 
@@ -513,6 +513,49 @@ if [ $OPT == "2" ]; then
 fi
 }
 
+# Resize fonts if font is ttf only
+# TWRP supports ttf as of 2.8.1.0 onward
+GOTOTTFFONT() {
+
+file_chosen=ui.xml
+
+if output=$(egrep -n "resource name=" "${PORT_UI}"/"${file_chosen}" | egrep "ttf"); then
+	echo "$output" >> "${PORT_UI}"/font.txt
+	# Begin while loop
+	clear; while IFS= read -r line; do
+		location=$(echo "$line" | egrep -o '[0-9]+:' | egrep -o '[0-9]+')
+		TTFSIZE=$(echo "$line" | egrep -o ' size="[0-9]+" ' | egrep -o '[0-9]+')
+			if [ -n "$location" -a "$TTFSIZE" -gt 0 -a "$TTFSIZE" -gt 1 ]; then
+				SIZEW=$TTFSIZE
+				# Calculate old size for new size of each font.
+				MODW=$(awk 'BEGIN{print "'$PORTW'"/"'$SIZEW'"}')
+				NEWW=$(awk 'BEGIN{print "'$BASEW'"/"'$MODW'"}')
+				# Round fractions up and down for each size.
+				FINALW=$(awk 'BEGIN{print int("'$NEWW'"+0.5)}')
+				echo " "
+				echo "Changing size='$TTFSIZE' to size='$FINALW'"
+				# Change old value to new value based on line number.
+			 	sed -i ''"$location"'s/'"$TTFSIZE"'/'"$FINALW"'/g' "${PORT_UI}"/"${file_chosen}"
+			fi
+	done < "${PORT_UI}"/font.txt;
+
+	# Remove unneeded txt file after while loop is finished.
+	if [ -f "${PORT_UI}"/font.txt ]; then
+		rm -rf "${PORT_UI}"/font.txt
+	fi
+	sleep 2
+else
+	echo " "
+	echo "No TTF fonts were found! Resize manually."
+	sleep 3
+fi
+
+if [ $OPT == "4" ]; then
+	HEADSUP
+fi
+
+}
+
 # Have user input both resolutions and the storage location of the theme to be ported.
 # If input is invalid then loop back to the function until they get it right.
 BASE_DEVICE() {
@@ -537,7 +580,7 @@ BASE_DEVICE() {
 			read -n1 any_key
 			clear; BASE_DEVICE
 		fi
-		if [ $OPT == "5" ]; then
+		if [ $OPT == "6" ]; then
 			HEADSUP
 		fi
 }
@@ -564,7 +607,7 @@ PORT_DEVICE() {
 			read -n1 any_key
 			clear; PORT_DEVICE
 		fi
-		if [ $OPT == "6" ]; then
+		if [ $OPT == "7" ]; then
 			HEADSUP
 		fi
 }
@@ -587,7 +630,7 @@ THEME_DIRECTORY() {
 			read -n1 any_key
 			clear; THEME_DIRECTORY
 		fi
-		if [ $OPT == "4" ]; then
+		if [ $OPT == "5" ]; then
 			HEADSUP
 		fi
 }
@@ -652,10 +695,11 @@ if [ ! $CHECKGM ]; then
 	echo "1. Port TWRP Images"
 	echo "2. Port TWRP XML(s)"
 	echo "3. Port Both"
-	echo "4. Change Theme Directory"
-	echo "5. Change Base Resolution"
-	echo "6. Change Port Resolution"
-	echo "7. Install GraphicsMagick"
+	echo "4. Resize TTF Font(s)"
+	echo "5. Change Theme Directory"
+	echo "6. Change Base Resolution"
+	echo "7. Change Port Resolution"
+	echo "8. Install GraphicsMagick"
 	echo "Q/q - Exit Script"
 	echo " "
 	read "OPT?Option: "
@@ -666,13 +710,15 @@ if [ ! $CHECKGM ]; then
 					if [[ ! $OPT == "5" ]]; then
 						if [[ ! $OPT == "6" ]]; then
 							if [[ ! $OPT == "7" ]]; then
-								if [[ ! $OPT == q ]]; then
-									if [[ ! $OPT == Q ]]; then
-										clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"
-										echo " "
-										echo "Invalid Input: Please try again!"
-										sleep 3
-										HEADSUP
+								if [[ ! $OPT == "8" ]]; then
+									if [[ ! $OPT == q ]]; then
+										if [[ ! $OPT == Q ]]; then
+											clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"
+											echo " "
+											echo "Invalid Input: Please try again!"
+											sleep 3
+											HEADSUP
+										fi
 									fi
 								fi
 							fi
@@ -686,10 +732,11 @@ if [ ! $CHECKGM ]; then
 		1) GOTOTWRPIMAGE ;;
 		2) GOTOTWRPUI ;;
 		3) GOTOTWRPIMAGE && GOTOTWRPUI ;;
-		4) THEME_DIRECTORY ;;
-		5) BASE_DEVICE ;;
-		6) PORT_DEVICE ;;
-		7) INSTALLGM ;;
+		4) GOTOTTFFONT ;;
+		5) THEME_DIRECTORY ;;
+		6) BASE_DEVICE ;;
+		7) PORT_DEVICE ;;
+		8) INSTALLGM ;;
 		Q) clear; echo "Goodbye"; read; clear; exit;;
 		q) clear; echo "Goodbye"; read; clear; exit;;
 	esac
@@ -700,10 +747,11 @@ else
 	echo "1. Port TWRP Images"
 	echo "2. Port TWRP XML(s)"
 	echo "3. Port Both"
-	echo "4. Change Theme Directory"
-	echo "5. Change Base Resolution"
-	echo "6. Change Port Resolution"
-	echo "7. Uninstall GraphicsMagick"
+	echo "4. Resize TTF Font(s)"
+	echo "5. Change Theme Directory"
+	echo "6. Change Base Resolution"
+	echo "7. Change Port Resolution"
+	echo "8. Uninstall GraphicsMagick"
 	echo "Q/q - Exit Script"
 	echo " "
 	read "OPT?Option: "
@@ -714,13 +762,15 @@ else
 					if [[ ! $OPT == "5" ]]; then
 						if [[ ! $OPT == "6" ]]; then
 							if [[ ! $OPT == "7" ]]; then
-								if [[ ! $OPT == q ]]; then
-									if [[ ! $OPT == Q ]]; then
-										clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"
-										echo " "
-										echo "Invalid Input: Please try again!"
-										sleep 3
-										HEADSUP
+								if [[ ! $OPT == "8" ]]; then
+									if [[ ! $OPT == q ]]; then
+										if [[ ! $OPT == Q ]]; then
+											clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"
+											echo " "
+											echo "Invalid Input: Please try again!"
+											sleep 3
+											HEADSUP
+										fi
 									fi
 								fi
 							fi
@@ -734,10 +784,11 @@ else
 		1) GOTOTWRPIMAGE ;;
 		2) GOTOTWRPUI ;;
 		3) GOTOTWRPIMAGE && GOTOTWRPUI ;;
-		4) THEME_DIRECTORY ;;
-		5) BASE_DEVICE ;;
-		6) PORT_DEVICE ;;
-		7) $SU busybox mount -o remount,rw -t auto /system; $SU rm -f "/system/bin/gm"; $SU busybox mount -o remount,ro -t auto /system; clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"; echo " "; echo "GraphicsMagick is uninstalled!"; sleep 3; HEADSUP ;;
+		4) GOTOTTFFONT ;;
+		5) THEME_DIRECTORY ;;
+		6) BASE_DEVICE ;;
+		7) PORT_DEVICE ;;
+		8) $SU busybox mount -o remount,rw -t auto /system; $SU rm -f "/system/bin/gm"; $SU busybox mount -o remount,ro -t auto /system; clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"; echo " "; echo "GraphicsMagick is uninstalled!"; sleep 3; HEADSUP ;;
 		Q) clear; echo "Goodbye"; read; clear; exit;;
 		q) clear; echo "Goodbye"; read; clear; exit;;
 	esac
