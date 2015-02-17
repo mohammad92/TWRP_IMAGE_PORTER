@@ -3,7 +3,7 @@
 # Written by Modding.MyMind/ModdingMyMind
 # XDA Member ©2015
 
-VERSION=4.3.1
+VERSION=4.4
 
 GOTOTWRPIMAGE() {
 # Find the images to be ported.
@@ -499,7 +499,39 @@ fi
 
 }
 
+KEYBOARDTEMP() {
+
+echo " "
+echo "PORTING THE KEYBOARD TEMPLATE REAL QUICK!"
+# Find all known keys and extract their values.
+if keys=$(egrep -on 'key[0-9]+="[1-9a-z][0-9a-z]+' "${PORT_UI}"/"${file_chosen}"); then
+	echo "$keys" >> "${PORT_UI}"/knownkeys.txt
+	# Begin while loop
+	while IFS= read -r line; do
+		 location=$(echo "$line" | egrep -o '[0-9]+:' | egrep -o '[0-9]+')
+		# Grab key variable without value.
+		TARGETKEYS=$(echo "$line" | egrep -o 'key[0-9]+="')
+		# Need this variable to calculate
+		SIZEW=$(echo "$line" | egrep -o '[0-9]+$')
+		CALCULATE_WIDTH
+		# Inject modified value
+		TARGETKEYS=$(echo $TARGETKEYS${FINALW})
+		# Grab known key without line number
+		# Will use this with SED
+		ORIGINALKEYS=$(echo "$line" | egrep -o 'key[0-9]+="[0-9]+')
+		sed -i ''"$location"'s/'"$ORIGINALKEYS"'/'"$TARGETKEYS"'/g' "${PORT_UI}"/"${file_chosen}"
+	done < "${PORT_UI}"/knownkeys.txt
+fi
+
+# Remove unneeded txt file
+if [ -f "${PORT_UI}"/knownkeys.txt ]; then
+	rm -rf "${PORT_UI}"/knownkeys.txt
+fi
+
+}
+
 # Call functions for porting all applicable values.
+KEYBOARDTEMP
 XX
 YY
 HHEIGHT
@@ -520,7 +552,47 @@ fi
 # TWRP supports ttf as of 2.8.1.0 onward
 GOTOTTFFONT() {
 
-file_chosen=ui.xml
+# Some themes have multiple xml files.
+# Ask user which one to port.
+XML=$(find "${PORT_UI}" -type f -iname "*.xml")
+
+count=0
+
+for XML_FILE in ${XML}; do
+	count=$(($count+1))
+	XML_FILE=$(basename ${XML_FILE})
+	# Store filenames in array
+	file_array[$count]=${XML_FILE}
+	echo "  ($count) ${XML_FILE}" >> "${PORT_UI}"/temp.list
+done
+
+if [ "$count" -gt "1" ]; then
+	clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"
+
+	echo " "
+	cat "${PORT_UI}"/temp.list
+	echo " "
+	read "SELECTION?Please enter number to port [0 to cancel]: "
+elif [ "$count" -lt "2" ]; then
+	SELECTION=1
+fi
+
+
+if [ "$SELECTION" == "0" ]; then
+	rm -f "${PORT_UI}"/temp.list
+	HEADSUP
+elif [ "`echo $SELECTION | sed 's/[0-9a-zA-Z]*//'`" == "" ]; then
+	file_chosen=${file_array[$SELECTION]}
+		if [ "$file_chosen" == "" ]; then
+			echo " "
+			echo "Please make correct selection."
+			sleep 3
+			rm -f "${PORT_UI}"/temp.list
+			GOTOTTFFONT
+		fi
+fi
+
+rm -f "${PORT_UI}"/temp.list
 
 if output=$(egrep -n "resource name=" "${PORT_UI}"/"${file_chosen}" | egrep "ttf"); then
 	echo "$output" >> "${PORT_UI}"/font.txt
@@ -623,6 +695,9 @@ THEME_DIRECTORY() {
 	read "PORT_THEME?Enter Path: "
 		# Check to see if directory exists
 		if [ -d "${PORT_THEME}" ] ; then
+			if echo "${PORT_THEME}" | grep -o /$ >/dev/null 2>&1; then
+				PORT_THEME="${PORT_THEME%?}"
+			fi
  			PORT_UI=$(echo "${PORT_THEME}")
  			P_IMAGES=$(echo "${PORT_THEME}")
 		else
