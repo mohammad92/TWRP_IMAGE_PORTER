@@ -3,7 +3,7 @@
 # Written by Modding.MyMind/ModdingMyMind
 # XDA Member ©2015
 
-VERSION=4.4
+VERSION=4.4.1
 
 GOTOTWRPIMAGE() {
 # Find the images to be ported.
@@ -501,11 +501,11 @@ fi
 
 KEYBOARDTEMP() {
 
-echo " "
-echo "PORTING THE KEYBOARD TEMPLATE REAL QUICK!"
 # Find all known keys and extract their values.
 if keys=$(egrep -on 'key[0-9]+="[1-9a-z][0-9a-z]+' "${PORT_UI}"/"${file_chosen}"); then
 	echo "$keys" >> "${PORT_UI}"/knownkeys.txt
+	echo " "
+	echo "PORTING THE KEYBOARD TEMPLATE REAL QUICK!"
 	# Begin while loop
 	while IFS= read -r line; do
 		 location=$(echo "$line" | egrep -o '[0-9]+:' | egrep -o '[0-9]+')
