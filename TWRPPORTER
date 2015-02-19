@@ -3,7 +3,7 @@
 # Written by Modding.MyMind/ModdingMyMind
 # XDA Member ©2015
 
-VERSION=5.0
+VERSION=5.0.1
 
 GOTOTWRPIMAGE() {
 # Find the images to be ported.
@@ -60,7 +60,7 @@ fi
 }
 
 GOTOTWRPUI() {
-
+set -x
 # Some themes have multiple xml files.
 # Ask user which one to port.
 XML=$(find "${PORT_UI}" -type f -iname "*.xml")
@@ -87,10 +87,10 @@ elif [ "$count" -lt "2" ]; then
 fi
 
 
-if [ "$SELECTION" == "0" ]; then
+if [ $SELECTION == "0" ]; then
 	rm -f "${PORT_UI}"/temp.list
 	HEADSUP
-elif [ "`echo $SELECTION | sed 's/[0-9a-zA-Z]*//'`" == "" ]; then
+elif [ "`echo "$SELECTION" | sed 's/[0-9]*//'`" == "" ]; then
 	file_chosen=${file_array[$SELECTION]}
 		if [ "$file_chosen" == "" ]; then
 			echo " "
@@ -141,13 +141,6 @@ DONT_KNOW_JACK() {
 			 sed -i ''"$location"'s/'"$VALUE_CONFIRM"'/'"$FINALW"'/g' "${PORT_UI}"/"${file_chosen}"
 		fi
 }
-
-# Add my signature before we begin.
-# This is my work after all.
-# Only the original TWRP authors to the original TWRP themes have my permission to remove this signature.
-# If you are porting someone else's work using this script then this signature will remain intact.
-old=$(cat "${PORT_UI}"/"${file_chosen}" | egrep -o '<description>[0-9 A-Z a-z]+</description>' | egrep -o '[0-9 A-Z a-z]+<' | egrep -o '[0-9 A-Z a-z]+')
-sed -i "s/$old/$old Ported By Modding.MyMind/g" "${PORT_UI}"/"${file_chosen}"
 
 # Search for x values.
 XX() {
