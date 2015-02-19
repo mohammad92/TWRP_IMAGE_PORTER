@@ -3,7 +3,7 @@
 # Written by Modding.MyMind/ModdingMyMind
 # XDA Member ©2015
 
-VERSION=5.0.3
+VERSION=5.0.4
 
 GOTOTWRPIMAGE() {
 # Find the images to be ported.
@@ -20,11 +20,11 @@ clear; while read line; do
 		 	 	TEMPORARY_IMAGEFILE=`echo "${IMAGEFILE}" | sed -e "s/[0-9]//g"`
 		 	 	busybox mv -f "${IMAGEFILEDIR}"/"${IMAGEFILE}" "${IMAGEFILEDIR}"/"${TEMPORARY_IMAGEFILE}"
 		 	 	# Determine original width and height of each image.
-		 	 	SIZEW=$(gm identify "${IMAGEFILEDIR}"/"${TEMPORARY_IMAGEFILE}" | egrep -o '[0-9]+x' | egrep -o '[0-9]+')
-		 	 	SIZEH=$(gm identify "${IMAGEFILEDIR}"/"${TEMPORARY_IMAGEFILE}" | egrep -o 'x[0-9]+' | egrep -o '[0-9]+')
+		 	 	SIZEW=$(gm identify -format "%w" "${IMAGEFILEDIR}"/"${TEMPORARY_IMAGEFILE}")
+		 	 	SIZEH=$(gm identify -format "%h" "${IMAGEFILEDIR}"/"${TEMPORARY_IMAGEFILE}")
 		 	else
-		 	 	SIZEW=$(gm identify "${IMAGEFILEDIR}"/"${IMAGEFILE}" | egrep -o '[0-9]+x' | egrep -o '[0-9]+')
-		 	 	SIZEH=$(gm identify "${IMAGEFILEDIR}"/"${IMAGEFILE}" | egrep -o 'x[0-9]+' | egrep -o '[0-9]+')
+		 	 	SIZEW=$(gm identify -format "%w" "${IMAGEFILEDIR}"/"${IMAGEFILE}")
+		 	 	SIZEH=$(gm identify -format "%h" "${IMAGEFILEDIR}"/"${IMAGEFILE}")
 		 	fi
 		# Calculate old size for new size of each image.
 		MODW=$(awk 'BEGIN{print "'$PORTW'"/"'$SIZEW'"}')
