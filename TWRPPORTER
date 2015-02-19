@@ -3,7 +3,7 @@
 # Written by Modding.MyMind/ModdingMyMind
 # XDA Member ©2015
 
-VERSION=5.0.1
+VERSION=5.0.2
 
 GOTOTWRPIMAGE() {
 # Find the images to be ported.
@@ -60,7 +60,7 @@ fi
 }
 
 GOTOTWRPUI() {
-set -x
+
 # Some themes have multiple xml files.
 # Ask user which one to port.
 XML=$(find "${PORT_UI}" -type f -iname "*.xml")
