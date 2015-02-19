@@ -3,7 +3,7 @@
 # Written by Modding.MyMind/ModdingMyMind
 # XDA Member ©2015
 
-VERSION=5.0.2
+VERSION=5.0.3
 
 GOTOTWRPIMAGE() {
 # Find the images to be ported.
@@ -39,14 +39,14 @@ clear; while read line; do
 		 	 	echo " "
 		 	 	echo Porting "${IMAGEFILE}" from $SIZEW'x'$SIZEH to $FINALW'x'$FINALH
 		 	 	# Convert images to new size.
-		 	 	gm convert "${IMAGEFILEDIR}"/"${TEMPORARY_IMAGEFILE}" -resize $FINALW'x'$FINALH'!' "${IMAGEFILEDIR}"/"${TEMPORARY_IMAGEFILE}"
+		 	 	gm mogrify -resize $FINALW'x'$FINALH'!' "${IMAGEFILEDIR}"/"${TEMPORARY_IMAGEFILE}"
 		 	 	busybox mv -f "${IMAGEFILEDIR}"/"${TEMPORARY_IMAGEFILE}" "${IMAGEFILEDIR}"/"${IMAGEFILE}"
 		 	else
 		 	 	# Add extra echo for spacing between loops
 		 	 	echo " "
 		 	 	echo Porting "${IMAGEFILE}" from $SIZEW'x'$SIZEH to $FINALW'x'$FINALH
 		 	 	# Convert image to new size.
-		 	 	gm convert "${IMAGEFILEDIR}"/"${IMAGEFILE}" -resize $FINALW'x'$FINALH'!' "${IMAGEFILEDIR}"/"${IMAGEFILE}"
+		 	 	gm mogrify -resize $FINALW'x'$FINALH'!' "${IMAGEFILEDIR}"/"${IMAGEFILE}"
 		 	fi;
 done < "${P_IMAGES}"/image_dir.txt
 
