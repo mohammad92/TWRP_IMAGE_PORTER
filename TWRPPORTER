@@ -3,29 +3,30 @@
 # Written by Modding.MyMind/ModdingMyMind
 # XDA Member ©2015
 
-VERSION=5.0.4
+VERSION=5.0.5
 
 GOTOTWRPIMAGE() {
+
+if [ ! -f "${P_IMAGES}"/image_dir.txt ]; then
+	busybox touch "${P_IMAGES}"/image_dir.txt
+fi
+
 # Find the images to be ported.
 if output=$(find "${P_IMAGES}" -type f -iname "*.png" -o -iname "*.jpg"); then
-	echo "${output}" >> "${P_IMAGES}"/image_dir.txt
+	echo "${output}" > "${P_IMAGES}"/image_dir.txt
 fi
+
 clear; while read line; do
 		# Remember the directory and filename to each image.
+
+		# Remember the directory and filename
 		local IMAGEFILE="$(basename "${line}")"
 		local IMAGEFILEDIR="$(dirname "${line}")"
-		CHECK=$(find "${IMAGEFILEDIR}" -type f -iname "${IMAGEFILE}" | egrep -o '[0-9]+x[0-9]+' | wc -l)
-		 	# Check if filename has numbers which resemble a resolution and temporarily remove them to prevent errors while porting.
-		 	if [[ $CHECK -gt 0 ]]; then
-		 	 	TEMPORARY_IMAGEFILE=`echo "${IMAGEFILE}" | sed -e "s/[0-9]//g"`
-		 	 	busybox mv -f "${IMAGEFILEDIR}"/"${IMAGEFILE}" "${IMAGEFILEDIR}"/"${TEMPORARY_IMAGEFILE}"
-		 	 	# Determine original width and height of each image.
-		 	 	SIZEW=$(gm identify -format "%w" "${IMAGEFILEDIR}"/"${TEMPORARY_IMAGEFILE}")
-		 	 	SIZEH=$(gm identify -format "%h" "${IMAGEFILEDIR}"/"${TEMPORARY_IMAGEFILE}")
-		 	else
-		 	 	SIZEW=$(gm identify -format "%w" "${IMAGEFILEDIR}"/"${IMAGEFILE}")
-		 	 	SIZEH=$(gm identify -format "%h" "${IMAGEFILEDIR}"/"${IMAGEFILE}")
-		 	fi
+
+		# Remember width and height
+		SIZEW=$(gm identify -format "%w" "${IMAGEFILEDIR}"/"${IMAGEFILE}")
+		SIZEH=$(gm identify -format "%h" "${IMAGEFILEDIR}"/"${IMAGEFILE}")
+
 		# Calculate old size for new size of each image.
 		MODW=$(awk 'BEGIN{print "'$PORTW'"/"'$SIZEW'"}')
 		NEWW=$(awk 'BEGIN{print "'$BASEW'"/"'$MODW'"}')
@@ -34,20 +35,13 @@ clear; while read line; do
 		# Round fractions up and down for each image.
 		FINALW=$(awk 'BEGIN{print int("'$NEWW'"+0.5)}')
 		FINALH=$(awk 'BEGIN{print int("'$NEWH'"+0.5)}')
-		 	if [[ $CHECK -gt 0 ]]; then
-		 	 	# Add extra echo for spacing between loops
-		 	 	echo " "
-		 	 	echo Porting "${IMAGEFILE}" from $SIZEW'x'$SIZEH to $FINALW'x'$FINALH
-		 	 	# Convert images to new size.
-		 	 	gm mogrify -resize $FINALW'x'$FINALH'!' "${IMAGEFILEDIR}"/"${TEMPORARY_IMAGEFILE}"
-		 	 	busybox mv -f "${IMAGEFILEDIR}"/"${TEMPORARY_IMAGEFILE}" "${IMAGEFILEDIR}"/"${IMAGEFILE}"
-		 	else
-		 	 	# Add extra echo for spacing between loops
-		 	 	echo " "
-		 	 	echo Porting "${IMAGEFILE}" from $SIZEW'x'$SIZEH to $FINALW'x'$FINALH
-		 	 	# Convert image to new size.
-		 	 	gm mogrify -resize $FINALW'x'$FINALH'!' "${IMAGEFILEDIR}"/"${IMAGEFILE}"
-		 	fi;
+
+		# Inform user of the change and conduct the change
+		echo " "
+		echo Porting "${IMAGEFILE}" from $SIZEW'x'$SIZEH to $FINALW'x'$FINALH
+		# Convert image to new size.
+		gm mogrify -resize $FINALW'x'$FINALH'!' "${IMAGEFILEDIR}"/"${IMAGEFILE}"
+
 done < "${P_IMAGES}"/image_dir.txt
 
 if [ -f "${P_IMAGES}"/image_dir.txt ]; then
@@ -389,63 +383,66 @@ VVALUE_OVERHAUL() {
 # Get all standard variables and line numbers.
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_x"); then
 	echo "$output" >> "${PORT_UI}"/w.txt
-fi
+fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_y"); then
 	echo "$output" >> "${PORT_UI}"/h.txt
-fi
+fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_width"); then
 	echo "$output" >> "${PORT_UI}"/w.txt
-fi
+fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_height"); then
 	echo "$output" >> "${PORT_UI}"/h.txt
-fi
+fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_w"); then
 	echo "$output" >> "${PORT_UI}"/w.txt
-fi
+fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_h"); then
 	echo "$output" >> "${PORT_UI}"/h.txt
-fi
+fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_sliderw"); then
 	echo "$output" >> "${PORT_UI}"/w.txt
-fi
+fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_sliderh"); then
 	echo "$output" >> "${PORT_UI}"/h.txt
-fi
+fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_padding"); then
 	echo "$output" >> "${PORT_UI}"/h.txt
-fi
+fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_rectw"); then
 	echo "$output" >> "${PORT_UI}"/w.txt
-fi
+fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_recth"); then
 	echo "$output" >> "${PORT_UI}"/h.txt
-fi
+fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_separatorheight"); then
 	echo "$output" >> "${PORT_UI}"/h.txt
-fi
+fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_linew"); then
 	echo "$output" >> "${PORT_UI}"/w.txt
-fi
+fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_lineh"); then
 	echo "$output" >> "${PORT_UI}"/h.txt
-fi
+fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "row"); then
 	echo "$output" >> "${PORT_UI}"/h.txt
-fi
+fi &
+
+# Wait on all above PID's (theory anyways lol)
+wait </dev/tty
 
 # Sort out and suppress all duplicates
 if [ -f "${PORT_UI}"/h.txt ]; then
