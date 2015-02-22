@@ -17,7 +17,6 @@ if output=$(find "${P_IMAGES}" -type f -iname "*.png" -o -iname "*.jpg"); then
 fi
 
 clear; while read line; do
-		# Remember the directory and filename to each image.
 
 		# Remember the directory and filename
 		local IMAGEFILE="$(basename "${line}")"
