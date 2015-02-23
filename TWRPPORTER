@@ -3,7 +3,7 @@
 # Written by Modding.MyMind/ModdingMyMind
 # XDA Member ©2015
 
-VERSION=5.0.6
+VERSION=5.1
 
 GOTOTWRPIMAGE() {
 
@@ -28,7 +28,7 @@ clear; while read line; do
 
 		# Calculate old size for new size of each image.
 		# Round fractions up and down for each image.
-		 FINALW=$(awk 'BEGIN{print int("'$BASEW'"/("'$PORTW'"/"'$SIZEW'")+0.5)}')
+		FINALW=$(awk 'BEGIN{print int("'$BASEW'"/("'$PORTW'"/"'$SIZEW'")+0.5)}')
 		FINALH=$(awk 'BEGIN{print int("'$BASEH'"/("'$PORTH'"/"'$SIZEH'")+0.5)}')
 
 		# Inform user of the change and conduct the change
@@ -48,55 +48,34 @@ if [ $OPT == "1" ]; then
 fi
 }
 
-GOTOTWRPUI() {
-
+TWRPUILOOP() {
 # Some themes have multiple xml files.
-# Ask user which one to port.
+# Find and port all based on targeted directory.
+# No user read input is required.
 XML=$(find "${PORT_UI}" -type f -iname "*.xml")
 
 count=0
-
 for XML_FILE in ${XML}; do
 	count=$(($count+1))
 	XML_FILE=$(basename ${XML_FILE})
 	# Store filenames in array
 	file_array[$count]=${XML_FILE}
-	echo "  ($count) ${XML_FILE}" >> "${PORT_UI}"/temp.list
+	SELECTION=$count
+	file_chosen=${file_array[$SELECTION]}
+	GOTOTWRPUI
 done
 
-if [ "$count" -gt "1" ]; then
-	clear; echo "TWRP Theme Porter - Version $(echo "$VERSION")"
-
-	echo " "
-	cat "${PORT_UI}"/temp.list
-	echo " "
-	read "SELECTION?Please enter number to port [0 to cancel]: "
-elif [ "$count" -lt "2" ]; then
-	SELECTION=1
-fi
+# Go back to main when loop is completed
+HEADSUP
+}
 
 
-if [ $SELECTION == "0" ]; then
-	rm -f "${PORT_UI}"/temp.list
-	HEADSUP
-elif [ "`echo "$SELECTION" | sed 's/[0-9]*//'`" == "" ]; then
-	file_chosen=${file_array[$SELECTION]}
-		if [ "$file_chosen" == "" ]; then
-			echo " "
-			echo "Please make correct selection."
-			sleep 3
-			rm -f "${PORT_UI}"/temp.list
-			GOTOTWRPUI
-		fi
-fi
-
-rm -f "${PORT_UI}"/temp.list
-
+GOTOTWRPUI() {
 # Call this function during the while loop.
 CALCULATE_WIDTH() {
 		# Calculate old size for new size of each image.
 		# Round fractions up and down for each image.
-		 FINALW=$(awk 'BEGIN{print int("'$BASEW'"/("'$PORTW'"/"'$SIZEW'")+0.5)}')
+		FINALW=$(awk 'BEGIN{print int("'$BASEW'"/("'$PORTW'"/"'$SIZEW'")+0.5)}')
 }
 
 # Call this function during the while loop.
@@ -133,6 +112,7 @@ XX() {
 ####################
 ####################
 
+touch "${PORT_UI}"/x.txt
 # Get all x values and line numbers.
 egrep -on ' x="[0-9]+" ' "${PORT_UI}"/"${file_chosen}" > "${PORT_UI}"/x.txt
 
@@ -159,7 +139,9 @@ fi
 done < "${PORT_UI}"/x.txt
 
 # Remove unneeded txt file after while loop is finished.
-rm -rf "${PORT_UI}"/x.txt
+if [ -f "${PORT_UI}"/x.txt ]; then
+	rm -rf "${PORT_UI}"/x.txt
+fi
 
 ####################
 ####################
@@ -172,6 +154,7 @@ YY() {
 ####################
 ####################
 
+touch "${PORT_UI}"/y.txt
 # Get all y values and line numbers.
 egrep -on ' y="[0-9]+" ' "${PORT_UI}"/"${file_chosen}" > "${PORT_UI}"/y.txt
 
@@ -198,7 +181,9 @@ fi
 done < "${PORT_UI}"/y.txt
 
 # Remove unneeded txt file after while loop is finished.
-rm -rf "${PORT_UI}"/y.txt
+if [ -f "${PORT_UI}"/y.txt ]; then
+	rm -rf "${PORT_UI}"/y.txt
+fi
 
 ####################
 ####################
@@ -211,6 +196,7 @@ WWIDTH() {
 ####################
 ####################
 
+touch "${PORT_UI}"/width.txt
 # Get all width values and line numbers.
 egrep -on ' width="[0-9]+" ' "${PORT_UI}"/"${file_chosen}" > "${PORT_UI}"/width.txt
 
@@ -237,7 +223,9 @@ fi
 done < "${PORT_UI}"/width.txt
 
 # Remove unneeded txt file after while loop is finished.
-rm -rf "${PORT_UI}"/width.txt
+if [ -f "${PORT_UI}"/width.txt ]; then
+	rm -rf "${PORT_UI}"/width.txt
+fi
 
 ####################
 ####################
@@ -250,6 +238,7 @@ HHEIGHT() {
 ####################
 ####################
 
+touch "${PORT_UI}"/height.txt
 # Get all height values and line numbers.
 egrep -on ' height="[0-9]+" ' "${PORT_UI}"/"${file_chosen}" > "${PORT_UI}"/height.txt
 
@@ -276,7 +265,9 @@ fi
 done < "${PORT_UI}"/height.txt
 
 # Remove unneeded txt file after while loop is finished.
-rm -rf "${PORT_UI}"/height.txt
+if [ -f "${PORT_UI}"/height.txt ]; then
+	rm -rf "${PORT_UI}"/height.txt
+fi
 
 ####################
 ####################
@@ -289,6 +280,7 @@ HH() {
 ####################
 ####################
 
+touch "${PORT_UI}"/h.txt
 # Get all h values and line numbers.
 egrep -on ' h="[0-9]+" ' "${PORT_UI}"/"${file_chosen}" > "${PORT_UI}"/h.txt
 
@@ -315,7 +307,9 @@ fi
 done < "${PORT_UI}"/h.txt
 
 # Remove unneeded txt file after while loop is finished.
-rm -rf "${PORT_UI}"/h.txt
+if [ -f "${PORT_UI}"/h.txt ]; then
+	rm -rf "${PORT_UI}"/h.txt
+fi
 
 ####################
 ####################
@@ -328,6 +322,7 @@ WW() {
 ####################
 ####################
 
+touch "${PORT_UI}"/w.txt
 # Get all w values and line numbers.
 egrep -on ' w="[0-9]+" ' "${PORT_UI}"/"${file_chosen}" > "${PORT_UI}"/w.txt
 
@@ -354,7 +349,9 @@ fi
 done < "${PORT_UI}"/w.txt
 
 # Remove unneeded txt file after while loop is finished.
-rm -rf "${PORT_UI}"/w.txt
+if [ -f "${PORT_UI}"/w.txt ]; then
+	rm -rf "${PORT_UI}"/w.txt
+fi
 
 ####################
 ####################
@@ -371,75 +368,76 @@ VVALUE_OVERHAUL() {
 ####################
 ####################
 
+touch "${PORT_UI}"/h.txt
+touch "${PORT_UI}"/w.txt
+
 # Get all standard variables and line numbers.
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_x"); then
 	echo "$output" > "${PORT_UI}"/w.txt
-fi &
+fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_y"); then
 	echo "$output" > "${PORT_UI}"/h.txt
-fi &
+fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_width"); then
 	echo "$output" > "${PORT_UI}"/w.txt
-fi &
+fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_height"); then
 	echo "$output" > "${PORT_UI}"/h.txt
-fi &
+fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_w"); then
 	echo "$output" > "${PORT_UI}"/w.txt
-fi &
+fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_h"); then
 	echo "$output" > "${PORT_UI}"/h.txt
-fi &
+fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_sliderw"); then
 	echo "$output" > "${PORT_UI}"/w.txt
-fi &
+fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_sliderh"); then
 	echo "$output" > "${PORT_UI}"/h.txt
-fi &
+fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_padding"); then
 	echo "$output" > "${PORT_UI}"/h.txt
-fi &
+fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_rectw"); then
 	echo "$output" > "${PORT_UI}"/w.txt
-fi &
+fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_recth"); then
 	echo "$output" > "${PORT_UI}"/h.txt
-fi &
+fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_separatorheight"); then
 	echo "$output" > "${PORT_UI}"/h.txt
-fi &
+fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_linew"); then
 	echo "$output" > "${PORT_UI}"/w.txt
-fi &
+fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_lineh"); then
 	echo "$output" > "${PORT_UI}"/h.txt
-fi &
+fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "row"); then
 	echo "$output" > "${PORT_UI}"/h.txt
-fi &
-
-# Wait on all above PID's (theory anyways lol)
-wait </dev/tty
-
+fi
+touch "${PORT_UI}"/height.txt
 # Sort out and suppress all duplicates
 if [ -f "${PORT_UI}"/h.txt ]; then
 	sort -u "${PORT_UI}"/h.txt > "${PORT_UI}"/height.txt
 	rm -rf "${PORT_UI}"/h.txt
 fi
+touch "${PORT_UI}"/width.txt
 if [ -f "${PORT_UI}"/w.txt ]; then
 	sort -u "${PORT_UI}"/w.txt > "${PORT_UI}"/width.txt
 	rm -rf "${PORT_UI}"/w.txt
@@ -484,7 +482,7 @@ KEYBOARDTEMP() {
 
 # Find all known keys and extract their values.
 if keys=$(egrep -on 'key[0-9]+="[1-9a-z][0-9a-z]+' "${PORT_UI}"/"${file_chosen}"); then
-	echo "$keys" >> "${PORT_UI}"/knownkeys.txt
+	echo "$keys" > "${PORT_UI}"/knownkeys.txt
 	echo " "
 	echo "PORTING THE KEYBOARD TEMPLATE REAL QUICK!"
 	# Begin while loop
@@ -520,12 +518,6 @@ WWIDTH
 WW
 HH
 VVALUE_OVERHAUL
-
-if [ $OPT == "2" ]; then
-	HEADSUP
-elif [ $OPT == "3" ]; then
-	HEADSUP
-fi
 
 }
 
@@ -751,7 +743,7 @@ if [ ! $CHECKGM ]; then
 	echo "Please select your option:"
 	echo "1. Port TWRP Images"
 	echo "2. Port TWRP XML(s)"
-	echo "3. Port Both"
+	echo "3. Port Images & XML(s)"
 	echo "4. Resize TTF Font(s)"
 	echo "5. Change Theme Directory"
 	echo "6. Change Base Resolution"
@@ -790,8 +782,8 @@ if [ ! $CHECKGM ]; then
 	fi
 	case $OPT in
 		1) GOTOTWRPIMAGE ;;
-		2) GOTOTWRPUI ;;
-		3) GOTOTWRPIMAGE && GOTOTWRPUI ;;
+		2) TWRPUILOOP ;;
+		3) GOTOTWRPIMAGE && TWRPUILOOP ;;
 		4) GOTOTTFFONT ;;
 		5) THEME_DIRECTORY ;;
 		6) BASE_DEVICE ;;
@@ -807,7 +799,7 @@ else
 	echo "Please select your option:"
 	echo "1. Port TWRP Images"
 	echo "2. Port TWRP XML(s)"
-	echo "3. Port Both"
+	echo "3. Port Images & XML(s)"
 	echo "4. Resize TTF Font(s)"
 	echo "5. Change Theme Directory"
 	echo "6. Change Base Resolution"
@@ -843,8 +835,8 @@ else
 	fi
 	case $OPT in
 		1) GOTOTWRPIMAGE ;;
-		2) GOTOTWRPUI ;;
-		3) GOTOTWRPIMAGE && GOTOTWRPUI ;;
+		2) TWRPUILOOP ;;
+		3) GOTOTWRPIMAGE && TWRPUILOOP ;;
 		4) GOTOTTFFONT ;;
 		5) THEME_DIRECTORY ;;
 		6) BASE_DEVICE ;;
