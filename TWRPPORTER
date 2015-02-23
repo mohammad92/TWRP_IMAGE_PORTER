@@ -3,7 +3,7 @@
 # Written by Modding.MyMind/ModdingMyMind
 # XDA Member ©2015
 
-VERSION=5.0.5
+VERSION=5.0.6
 
 GOTOTWRPIMAGE() {
 
@@ -27,13 +27,9 @@ clear; while read line; do
 		SIZEH=$(gm identify -format "%h" "${IMAGEFILEDIR}"/"${IMAGEFILE}")
 
 		# Calculate old size for new size of each image.
-		MODW=$(awk 'BEGIN{print "'$PORTW'"/"'$SIZEW'"}')
-		NEWW=$(awk 'BEGIN{print "'$BASEW'"/"'$MODW'"}')
-		MODH=$(awk 'BEGIN{print "'$PORTH'"/"'$SIZEH'"}')
-		NEWH=$(awk 'BEGIN{print "'$BASEH'"/"'$MODH'"}')
 		# Round fractions up and down for each image.
-		FINALW=$(awk 'BEGIN{print int("'$NEWW'"+0.5)}')
-		FINALH=$(awk 'BEGIN{print int("'$NEWH'"+0.5)}')
+		 FINALW=$(awk 'BEGIN{print int("'$BASEW'"/("'$PORTW'"/"'$SIZEW'")+0.5)}')
+		FINALH=$(awk 'BEGIN{print int("'$BASEH'"/("'$PORTH'"/"'$SIZEH'")+0.5)}')
 
 		# Inform user of the change and conduct the change
 		echo " "
@@ -98,20 +94,16 @@ rm -f "${PORT_UI}"/temp.list
 
 # Call this function during the while loop.
 CALCULATE_WIDTH() {
-		# Calculate old size for new size of each value.
-		MODW=$(awk 'BEGIN{print "'$PORTW'"/"'$SIZEW'"}')
-		NEWW=$(awk 'BEGIN{print "'$BASEW'"/"'$MODW'"}')
-		# Round fractions up and down for each value.
-		FINALW=$(awk 'BEGIN{print int("'$NEWW'"+0.5)}')
+		# Calculate old size for new size of each image.
+		# Round fractions up and down for each image.
+		 FINALW=$(awk 'BEGIN{print int("'$BASEW'"/("'$PORTW'"/"'$SIZEW'")+0.5)}')
 }
 
 # Call this function during the while loop.
 CALCULATE_HEIGHT() {
-		# Calculate old size for new size of each value.
-		MODH=$(awk 'BEGIN{print "'$PORTH'"/"'$SIZEH'"}')
-		NEWH=$(awk 'BEGIN{print "'$BASEH'"/"'$MODH'"}')
-		# Round fractions up and down for each value.
-		FINALH=$(awk 'BEGIN{print int("'$NEWH'"+0.5)}')
+		# Calculate old size for new size of each image.
+		# Round fractions up and down for each image.
+		FINALH=$(awk 'BEGIN{print int("'$BASEH'"/("'$PORTH'"/"'$SIZEH'")+0.5)}')
 }
 
 # Call this function in the while loop for values which needs assistance from the human mind.
@@ -381,63 +373,63 @@ VVALUE_OVERHAUL() {
 
 # Get all standard variables and line numbers.
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_x"); then
-	echo "$output" >> "${PORT_UI}"/w.txt
+	echo "$output" > "${PORT_UI}"/w.txt
 fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_y"); then
-	echo "$output" >> "${PORT_UI}"/h.txt
+	echo "$output" > "${PORT_UI}"/h.txt
 fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_width"); then
-	echo "$output" >> "${PORT_UI}"/w.txt
+	echo "$output" > "${PORT_UI}"/w.txt
 fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_height"); then
-	echo "$output" >> "${PORT_UI}"/h.txt
+	echo "$output" > "${PORT_UI}"/h.txt
 fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_w"); then
-	echo "$output" >> "${PORT_UI}"/w.txt
+	echo "$output" > "${PORT_UI}"/w.txt
 fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_h"); then
-	echo "$output" >> "${PORT_UI}"/h.txt
+	echo "$output" > "${PORT_UI}"/h.txt
 fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_sliderw"); then
-	echo "$output" >> "${PORT_UI}"/w.txt
+	echo "$output" > "${PORT_UI}"/w.txt
 fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_sliderh"); then
-	echo "$output" >> "${PORT_UI}"/h.txt
+	echo "$output" > "${PORT_UI}"/h.txt
 fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_padding"); then
-	echo "$output" >> "${PORT_UI}"/h.txt
+	echo "$output" > "${PORT_UI}"/h.txt
 fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_rectw"); then
-	echo "$output" >> "${PORT_UI}"/w.txt
+	echo "$output" > "${PORT_UI}"/w.txt
 fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_recth"); then
-	echo "$output" >> "${PORT_UI}"/h.txt
+	echo "$output" > "${PORT_UI}"/h.txt
 fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_separatorheight"); then
-	echo "$output" >> "${PORT_UI}"/h.txt
+	echo "$output" > "${PORT_UI}"/h.txt
 fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_linew"); then
-	echo "$output" >> "${PORT_UI}"/w.txt
+	echo "$output" > "${PORT_UI}"/w.txt
 fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_lineh"); then
-	echo "$output" >> "${PORT_UI}"/h.txt
+	echo "$output" > "${PORT_UI}"/h.txt
 fi &
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "row"); then
-	echo "$output" >> "${PORT_UI}"/h.txt
+	echo "$output" > "${PORT_UI}"/h.txt
 fi &
 
 # Wait on all above PID's (theory anyways lol)
@@ -591,11 +583,9 @@ if output=$(egrep -n "resource name=" "${PORT_UI}"/"${file_chosen}" | egrep "ttf
 		TTFSIZE=$(echo "$line" | egrep -o ' size="[0-9]+" ' | egrep -o '[0-9]+')
 			if [ -n "$location" -a "$TTFSIZE" -gt 0 -a "$TTFSIZE" -gt 1 ]; then
 				SIZEW=$TTFSIZE
-				# Calculate old size for new size of each font.
-				MODW=$(awk 'BEGIN{print "'$PORTW'"/"'$SIZEW'"}')
-				NEWW=$(awk 'BEGIN{print "'$BASEW'"/"'$MODW'"}')
-				# Round fractions up and down for each size.
-				FINALW=$(awk 'BEGIN{print int("'$NEWW'"+0.5)}')
+				# Calculate old size for new size of each image.
+				# Round fractions up and down for each image.
+		 		FINALW=$(awk 'BEGIN{print int("'$BASEW'"/("'$PORTW'"/"'$SIZEW'")+0.5)}')
 				echo " "
 				echo "Changing size='$TTFSIZE' to size='$FINALW'"
 				# Change old value to new value based on line number.
