@@ -3,7 +3,7 @@
 # Written by Modding.MyMind/ModdingMyMind
 # XDA Member ©2015
 
-VERSION=5.1
+VERSION=5.1.1
 
 GOTOTWRPIMAGE() {
 
@@ -114,7 +114,7 @@ XX() {
 
 touch "${PORT_UI}"/x.txt
 # Get all x values and line numbers.
-egrep -on ' x="[0-9]+" ' "${PORT_UI}"/"${file_chosen}" > "${PORT_UI}"/x.txt
+egrep -on ' x="[0-9]+" ' "${PORT_UI}"/"${file_chosen}" >> "${PORT_UI}"/x.txt
 
 # Begin while loop
 clear; while IFS= read -r line; do
@@ -156,7 +156,7 @@ YY() {
 
 touch "${PORT_UI}"/y.txt
 # Get all y values and line numbers.
-egrep -on ' y="[0-9]+" ' "${PORT_UI}"/"${file_chosen}" > "${PORT_UI}"/y.txt
+egrep -on ' y="[0-9]+" ' "${PORT_UI}"/"${file_chosen}" >> "${PORT_UI}"/y.txt
 
 # Begin while loop
 while IFS= read -r line; do
@@ -198,7 +198,7 @@ WWIDTH() {
 
 touch "${PORT_UI}"/width.txt
 # Get all width values and line numbers.
-egrep -on ' width="[0-9]+" ' "${PORT_UI}"/"${file_chosen}" > "${PORT_UI}"/width.txt
+egrep -on ' width="[0-9]+" ' "${PORT_UI}"/"${file_chosen}" >> "${PORT_UI}"/width.txt
 
 # Begin while loop
 while IFS= read -r line; do
@@ -240,7 +240,7 @@ HHEIGHT() {
 
 touch "${PORT_UI}"/height.txt
 # Get all height values and line numbers.
-egrep -on ' height="[0-9]+" ' "${PORT_UI}"/"${file_chosen}" > "${PORT_UI}"/height.txt
+egrep -on ' height="[0-9]+" ' "${PORT_UI}"/"${file_chosen}" >> "${PORT_UI}"/height.txt
 
 # Begin while loop
 while IFS= read -r line; do
@@ -282,7 +282,7 @@ HH() {
 
 touch "${PORT_UI}"/h.txt
 # Get all h values and line numbers.
-egrep -on ' h="[0-9]+" ' "${PORT_UI}"/"${file_chosen}" > "${PORT_UI}"/h.txt
+egrep -on ' h="[0-9]+" ' "${PORT_UI}"/"${file_chosen}" >> "${PORT_UI}"/h.txt
 
 # Begin while loop
 while IFS= read -r line; do
@@ -324,7 +324,7 @@ WW() {
 
 touch "${PORT_UI}"/w.txt
 # Get all w values and line numbers.
-egrep -on ' w="[0-9]+" ' "${PORT_UI}"/"${file_chosen}" > "${PORT_UI}"/w.txt
+egrep -on ' w="[0-9]+" ' "${PORT_UI}"/"${file_chosen}" >> "${PORT_UI}"/w.txt
 
 # Begin while loop
 while IFS= read -r line; do
@@ -373,73 +373,73 @@ touch "${PORT_UI}"/w.txt
 
 # Get all standard variables and line numbers.
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_x"); then
-	echo "$output" > "${PORT_UI}"/w.txt
+	echo "$output" >> "${PORT_UI}"/w.txt
 fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_y"); then
-	echo "$output" > "${PORT_UI}"/h.txt
+	echo "$output" >> "${PORT_UI}"/h.txt
 fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_width"); then
-	echo "$output" > "${PORT_UI}"/w.txt
+	echo "$output" >> "${PORT_UI}"/w.txt
 fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_height"); then
-	echo "$output" > "${PORT_UI}"/h.txt
+	echo "$output" >> "${PORT_UI}"/h.txt
 fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_w"); then
-	echo "$output" > "${PORT_UI}"/w.txt
+	echo "$output" >> "${PORT_UI}"/w.txt
 fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_h"); then
-	echo "$output" > "${PORT_UI}"/h.txt
+	echo "$output" >> "${PORT_UI}"/h.txt
 fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_sliderw"); then
-	echo "$output" > "${PORT_UI}"/w.txt
+	echo "$output" >> "${PORT_UI}"/w.txt
 fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_sliderh"); then
-	echo "$output" > "${PORT_UI}"/h.txt
+	echo "$output" >> "${PORT_UI}"/h.txt
 fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_padding"); then
-	echo "$output" > "${PORT_UI}"/h.txt
+	echo "$output" >> "${PORT_UI}"/h.txt
 fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_rectw"); then
-	echo "$output" > "${PORT_UI}"/w.txt
+	echo "$output" >> "${PORT_UI}"/w.txt
 fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_recth"); then
-	echo "$output" > "${PORT_UI}"/h.txt
+	echo "$output" >> "${PORT_UI}"/h.txt
 fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_separatorheight"); then
-	echo "$output" > "${PORT_UI}"/h.txt
+	echo "$output" >> "${PORT_UI}"/h.txt
 fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_linew"); then
-	echo "$output" > "${PORT_UI}"/w.txt
+	echo "$output" >> "${PORT_UI}"/w.txt
 fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "_lineh"); then
-	echo "$output" > "${PORT_UI}"/h.txt
+	echo "$output" >> "${PORT_UI}"/h.txt
 fi
 
 if output=$(egrep -n "variable name=" "${PORT_UI}"/"${file_chosen}" | egrep "row"); then
-	echo "$output" > "${PORT_UI}"/h.txt
+	echo "$output" >> "${PORT_UI}"/h.txt
 fi
 touch "${PORT_UI}"/height.txt
 # Sort out and suppress all duplicates
 if [ -f "${PORT_UI}"/h.txt ]; then
-	sort -u "${PORT_UI}"/h.txt > "${PORT_UI}"/height.txt
+	sort -u "${PORT_UI}"/h.txt >> "${PORT_UI}"/height.txt
 	rm -rf "${PORT_UI}"/h.txt
 fi
 touch "${PORT_UI}"/width.txt
 if [ -f "${PORT_UI}"/w.txt ]; then
-	sort -u "${PORT_UI}"/w.txt > "${PORT_UI}"/width.txt
+	sort -u "${PORT_UI}"/w.txt >> "${PORT_UI}"/width.txt
 	rm -rf "${PORT_UI}"/w.txt
 fi
 
@@ -482,7 +482,7 @@ KEYBOARDTEMP() {
 
 # Find all known keys and extract their values.
 if keys=$(egrep -on 'key[0-9]+="[1-9a-z][0-9a-z]+' "${PORT_UI}"/"${file_chosen}"); then
-	echo "$keys" > "${PORT_UI}"/knownkeys.txt
+	echo "$keys" >> "${PORT_UI}"/knownkeys.txt
 	echo " "
 	echo "PORTING THE KEYBOARD TEMPLATE REAL QUICK!"
 	# Begin while loop
