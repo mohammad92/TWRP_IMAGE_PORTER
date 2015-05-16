@@ -3,21 +3,59 @@
 # Written by Modding.MyMind/ModdingMyMind
 # XDA Member ©2015
 
-VERSION=5.1.1
+VERSION=5.2
 
 GOTOTWRPIMAGE() {
 
-if [ ! -f "${P_IMAGES}"/image_dir.txt ]; then
-	busybox touch "${P_IMAGES}"/image_dir.txt
-fi
+	NUM=0
+	QUEUE=""
+	MAX_NPROC=$(grep "processor	:" < /proc/cpuinfo | wc -l) # default
+	MAX_NPROC=$(($MAX_NPROC+1))
+	REPLACE_CMD=0 # no replacement by default
 
-# Find the images to be ported.
-if output=$(find "${P_IMAGES}" -type f -iname "*.png" -o -iname "*.jpg"); then
-	echo "${output}" > "${P_IMAGES}"/image_dir.txt
-fi
+queue() {
+	QUEUE="$QUEUE $1"
+	NUM=$(($NUM+1))
+}
 
-clear; while read line; do
+regeneratequeue() {
+	OLDREQUEUE=$QUEUE
+	QUEUE=""
+	NUM=0
+	for PID in $OLDREQUEUE; do
+		if [ -d /proc/$PID ]; then
+			QUEUE="$QUEUE $PID"
+			NUM=$(($NUM+1))
+		fi
+	done
+}
 
+checkqueue() {
+	OLDCHQUEUE=$QUEUE
+	for PID in $OLDCHQUEUE; do
+		if [ ! -d /proc/$PID ]; then
+			regeneratequeue # at least one PID has finished
+			break
+		fi
+	done
+}
+
+	if [ ! -f "${P_IMAGES}"/image_dir.txt ]; then
+		busybox touch "${P_IMAGES}"/image_dir.txt
+	else
+		rm -f "${P_IMAGES}"/image_dir.txt
+		busybox touch "${P_IMAGES}"/image_dir.txt
+	fi
+
+	# Find the images to be ported.
+	if output=$(find "${P_IMAGES}" -type f -iname "*.png" -o -iname "*.jpg"); then
+		echo "${output}" > "${P_IMAGES}"/image_dir.txt
+	fi
+
+	filename="${P_IMAGES}"/image_dir.txt
+	filelines=$(cat "${filename}")
+
+	for line in $filelines; do
 		# Remember the directory and filename
 		local IMAGEFILE="$(basename "${line}")"
 		local IMAGEFILEDIR="$(dirname "${line}")"
@@ -34,18 +72,28 @@ clear; while read line; do
 		# Inform user of the change and conduct the change
 		echo " "
 		echo Porting "${IMAGEFILE}" from $SIZEW'x'$SIZEH to $FINALW'x'$FINALH
-		# Convert image to new size.
-		gm mogrify -resize $FINALW'x'$FINALH'!' "${IMAGEFILEDIR}"/"${IMAGEFILE}"
+		# Convert image to new sizes
+		CMD=`gm mogrify -resize $FINALW'x'$FINALH! "${IMAGEFILEDIR}"/"${IMAGEFILE}"`
 
-done < "${P_IMAGES}"/image_dir.txt
+		eval $CMD &
 
-if [ -f "${P_IMAGES}"/image_dir.txt ]; then
-	rm -rf "${P_IMAGES}"/image_dir.txt
-fi
+		PID=$!
+		queue $PID
 
-if [ $OPT == "1" ]; then
-	HEADSUP
-fi
+		while [ $NUM -ge $MAX_NPROC ]; do
+			checkqueue
+			#sleep 0.4
+		done
+	done
+	wait # wait for all processes to finish before exit
+
+	if [ -f "${P_IMAGES}"/image_dir.txt ]; then
+		rm -rf "${P_IMAGES}"/image_dir.txt
+	fi
+
+	if [ $OPT == "1" ]; then
+		HEADSUP
+	fi
 }
 
 TWRPUILOOP() {
